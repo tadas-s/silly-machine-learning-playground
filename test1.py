@@ -1,4 +1,6 @@
 from sklearn import tree
+from sklearn.naive_bayes import BernoulliNB
+from sklearn.ensemble import RandomForestClassifier
 from collections import Counter
 from string import punctuation, whitespace
 import numpy as np
@@ -73,6 +75,20 @@ def feature_extract(title):
 
     return features
 
+
+def load_demo_data(filename):
+    data = {}
+
+    with open(filename) as csv_data:
+        reader = csv.reader(csv_data, delimiter=",")
+
+        for row in reader:
+            isbn = row[1]
+            data.setdefault(isbn, [])
+            data[isbn].append(row[2])
+
+    return data
+
 data = [
     ('', 0)
 ]
@@ -94,8 +110,18 @@ classes = list(map(lambda entry: entry[1], data))
 #for klass, feature in zip(classes, features):
 #    print(klass, " -> ", feature)
 
-clf = tree.DecisionTreeClassifier()
+#clf = tree.DecisionTreeClassifier()
+#clf = BernoulliNB()
+clf = RandomForestClassifier()
 clf = clf.fit(list(features), classes)
 
-for t in tests:
-    print(t, ' -> ', clf.predict(feature_extract(t)))
+tests = load_demo_data('test_multivendor_responses.csv')
+
+for isbn, candidates in tests.items():
+    probs = list(map(lambda c: (c, clf.predict_proba(feature_extract(c))[0]), candidates))
+    probs = sorted(probs, key=lambda v: (-v[1][1], v[1][0]))
+    print("Candidates:")
+    print("\n".join(candidates))
+    print("\nWinner:")
+    print(probs[0][0])
+    print("------------------------------------------------")

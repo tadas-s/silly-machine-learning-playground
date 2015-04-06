@@ -5,6 +5,8 @@ from collections import Counter
 from string import punctuation, whitespace
 import numpy as np
 import csv
+import re
+from functools import reduce
 
 
 def feature_extract(title):
@@ -72,6 +74,25 @@ def feature_extract(title):
     features.append(
         int(" : " in title)
     )
+
+    # Does it have any kind of text in parenthesis?
+    features.append(
+        len(re.findall("\[[^\]]*\]|\([^)]*\)|<[^>]*>|\{[^\}]*\}", title))
+    )
+
+    # Uppercase letter 'share'
+    uppercase = reduce(lambda l, e: l + 1, filter(lambda l: l.isalpha() and l.isupper(), title), 0)
+    if uppercase > 0:
+        features.append(float(len(title)) / float(uppercase))
+    else:
+        features.append(0.0)
+
+    # Lowercase letter 'share'
+    lowercase = reduce(lambda l, e: l+1, filter(lambda l: l.isalpha() and l.islower(), title), 0)
+    if lowercase > 0:
+        features.append(float(len(title)) / float(lowercase))
+    else:
+        features.append(0.0)
 
     return features
 

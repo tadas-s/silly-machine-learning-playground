@@ -117,9 +117,9 @@ data = [
 tests = []
 
 with open('sample_multivendor_responses.csv', 'r') as csv_data:
-    reader = csv.reader(csv_data, delimiter="\t")
+    reader = csv.reader(csv_data, delimiter=",")
     for row in reader:
-        if row[2] in ['0', '1']:
+        if row[2] in ['0', '1', '2']:
             data.append((row[3], int(row[2])))
         else:
             tests.append(row[3])
@@ -140,7 +140,7 @@ tests = load_demo_data('test_multivendor_responses.csv')
 
 for isbn, candidates in tests.items():
     probs = list(map(lambda c: (c, clf.predict_proba(feature_extract(c))[0]), candidates))
-    probs = sorted(probs, key=lambda v: (-v[1][1], v[1][0]))
+    probs = sorted(probs, key=lambda v: (-max(v[1][1], v[1][2]), v[1][0]))
     print("Candidates:")
     print("\n".join(candidates))
     print("\nWinner:")

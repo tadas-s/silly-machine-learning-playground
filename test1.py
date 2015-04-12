@@ -24,6 +24,11 @@ def feature_extract(title):
         sum([v for k, v in Counter(title).items() if k in punctuation])
     )
 
+    # How many less common punctuation characters?
+    features.append(
+        sum([v for k, v in Counter(title).items() if (k in punctuation) and (k not in '.,:\'')])
+    )
+
     # Does it end with punctuation?
     features.append(
         int(len(title) and title[-1] in punctuation)

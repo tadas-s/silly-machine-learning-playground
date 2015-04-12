@@ -1,6 +1,7 @@
 from sklearn import tree
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
 from collections import Counter, OrderedDict
 from string import punctuation, whitespace
 import numpy as np
@@ -17,9 +18,6 @@ def feature_extract(title):
 
     # Does it start with uppercase?
     features.append(int(title[0:1].isupper()))
-
-    # Do all words start with uppercase?
-    features.append(int(title.istitle()))
 
     # How many punctuation characters?
     features.append(
@@ -60,14 +58,9 @@ def feature_extract(title):
         len(title_subtitle)
     )
 
-    # Assuming it splits into title/subtitle, is title uppercase?
+    # Assuming it splits into title/subtitle, is subtitle starts with uppercase?
     features.append(
-        len(title_subtitle) > 0 and title_subtitle[0].istitle()
-    )
-
-    # Assuming it splits into title/subtitle, is subtitle uppercase?
-    features.append(
-        len(title_subtitle) > 1 and title_subtitle[1].istitle()
+        len(title_subtitle) > 1 and title_subtitle[1][0:1].isupper()
     )
 
     # Is title/subtitel split by " : "?
@@ -133,7 +126,9 @@ classes = list(map(lambda entry: entry[1], data))
 
 #clf = tree.DecisionTreeClassifier()
 #clf = BernoulliNB()
-clf = RandomForestClassifier()
+clf = RandomForestClassifier(min_samples_split=4)
+
+
 clf = clf.fit(list(features), classes)
 
 tests = load_demo_data('test_multivendor_responses.csv')

@@ -1,7 +1,7 @@
 from sklearn import tree
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.ensemble import RandomForestClassifier
-from collections import Counter
+from collections import Counter, OrderedDict
 from string import punctuation, whitespace
 import numpy as np
 import csv
@@ -108,7 +108,7 @@ def load_demo_data(filename):
             data.setdefault(isbn, [])
             data[isbn].append(row[2])
 
-    return data
+    return OrderedDict(sorted(data.items()))
 
 data = [
     ('', 0)
@@ -142,7 +142,7 @@ for isbn, candidates in tests.items():
     probs = list(map(lambda c: (c, clf.predict_proba(feature_extract(c))[0]), candidates))
     probs = sorted(probs, key=lambda v: (-max(v[1][1], v[1][2]), v[1][0]))
     print("Candidates:")
-    print("\n".join(candidates))
+    print("\n".join(sorted(candidates)))
     print("\nWinner:")
     print(probs[0][0])
     print("------------------------------------------------")
